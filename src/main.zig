@@ -15,7 +15,7 @@ pub fn main() !void {
     try sdl.init(init_flags);
     defer sdl.quit(init_flags);
 
-    const window = try sdl.video.Window.init("Psyche", SCREEN_WIDTH, SCREEN_HEIGHT, .{ .resizable = true });
+    const window = try sdl.video.Window.init("Hello triangle", SCREEN_WIDTH, SCREEN_HEIGHT, .{ .resizable = true });
     defer window.deinit();
 
     const device = try sdl.gpu.Device.init(.{ .spirv = true }, builtin.mode == .Debug, null);
