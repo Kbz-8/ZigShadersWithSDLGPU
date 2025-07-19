@@ -1,7 +1,7 @@
 .{
-    .name = .Psyche,
+    .name = .ZigShadersSDLGPU,
     .version = "0.0.0",
-    .fingerprint = 0xcf64dd5cf1182735,
+    .fingerprint = 0xd9807a4cd54d53e7,
     .minimum_zig_version = "0.14.1",
 
     .dependencies = .{

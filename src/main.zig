@@ -1,9 +1,9 @@
 const sdl = @import("sdl3");
 const std = @import("std");
-const render = @import("renderer.zig");
+const builtin = @import("builtin");
 
-const SCREEN_WIDTH = 1920;
-const SCREEN_HEIGHT = 1080;
+const SCREEN_WIDTH = 1250;
+const SCREEN_HEIGHT = 720;
 
 const vertex_shader_source = @embedFile("shaders.vertex.zig");
 const fragment_shader_source = @embedFile("shaders.fragment.zig");
@@ -15,19 +15,21 @@ pub fn main() !void {
     try sdl.init(init_flags);
     defer sdl.quit(init_flags);
 
-    const window = try sdl.video.Window.init("Psyche", SCREEN_WIDTH, SCREEN_HEIGHT, .{ .resizable = true, .fullscreen = true });
+    const window = try sdl.video.Window.init("Psyche", SCREEN_WIDTH, SCREEN_HEIGHT, .{ .resizable = true });
     defer window.deinit();
 
-    const renderer = try render.Renderer.init(&window);
-    defer renderer.deinit();
+    const device = try sdl.gpu.Device.init(.{ .spirv = true }, builtin.mode == .Debug, null);
+    defer device.deinit();
 
-    const vertex_shader = try renderer.device.createShader(.{ .code = vertex_shader_source, .entry_point = "main", .format = .{ .spirv = true }, .stage = .vertex });
-    defer renderer.device.releaseShader(vertex_shader);
-    const fragment_shader = try renderer.device.createShader(.{ .code = fragment_shader_source, .entry_point = "main", .format = .{ .spirv = true }, .stage = .fragment });
-    defer renderer.device.releaseShader(fragment_shader);
+    try device.claimWindow(window);
 
-    const pipeline = try renderer.device.createGraphicsPipeline(.{ .vertex_shader = vertex_shader, .fragment_shader = fragment_shader, .target_info = .{ .color_target_descriptions = &.{.{ .format = renderer.device.getSwapchainTextureFormat(window) }} } });
-    defer renderer.device.releaseGraphicsPipeline(pipeline);
+    const vertex_shader = try device.createShader(.{ .code = vertex_shader_source, .entry_point = "main", .format = .{ .spirv = true }, .stage = .vertex });
+    defer device.releaseShader(vertex_shader);
+    const fragment_shader = try device.createShader(.{ .code = fragment_shader_source, .entry_point = "main", .format = .{ .spirv = true }, .stage = .fragment });
+    defer device.releaseShader(fragment_shader);
+
+    const pipeline = try device.createGraphicsPipeline(.{ .vertex_shader = vertex_shader, .fragment_shader = fragment_shader, .target_info = .{ .color_target_descriptions = &.{.{ .format = device.getSwapchainTextureFormat(window) }} } });
+    defer device.releaseGraphicsPipeline(pipeline);
 
     var running = true;
     mainloop: while (running) {
@@ -39,7 +41,7 @@ pub fn main() !void {
             }
         }
 
-        const cmd = try renderer.device.acquireCommandBuffer();
+        const cmd = try device.acquireCommandBuffer();
         const texture = cmd.waitAndAcquireSwapchainTexture(window) catch {
             try cmd.submit();
             continue :mainloop;
