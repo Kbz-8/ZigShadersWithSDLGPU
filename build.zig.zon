@@ -1,0 +1,19 @@
+.{
+    .name = .Psyche,
+    .version = "0.0.0",
+    .fingerprint = 0xcf64dd5cf1182735,
+    .minimum_zig_version = "0.14.1",
+
+    .dependencies = .{
+        .sdl3 = .{
+            .url = "git+https://github.com/Kbz-8/zig-sdl3?ref=master#6e80aaa6b9719540a4570243438ffc2a6284730c",
+            .hash = "sdl3-0.0.1-NmT1QzmVHgDphoLib-x143pf1ZChcB3E7e6u07YcqJDK",
+        },
+    },
+
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
